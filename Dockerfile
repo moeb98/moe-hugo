@@ -1,5 +1,4 @@
-ARG BASEIMAGE=alpine:latest
-FROM ${BASEIMAGE}
+FROM alpine:latest
 
 ARG HUGO_VERSION=0.84.4
 ARG OS=Linux
