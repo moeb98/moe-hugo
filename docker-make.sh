@@ -7,7 +7,7 @@ BASENAME=alpine:latest
 case "$1" in
 	"build")
 		docker buildx build \
-	      --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6 \
+	      --platform linux/amd64,linux/arm/v7,linux/arm/v6 \
   	      -t $RNAME:latest -t $RNAME:$VER --push \
 	      --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 	      --build-arg VCS_REF=`git rev-parse --short HEAD` \
