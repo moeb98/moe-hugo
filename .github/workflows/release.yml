@@ -58,8 +58,7 @@ jobs:
             -t mrmoe/moe-hugo:latest \
             -t ghcr.io/moeb98/moe-hugo:$(git describe --tags `git rev-list --tags --max-count=1`) \
             -t ghcr.io/moeb98/moe-hugo:latest \
-            # --build-arg OS=alpine \
             --build-arg BUILD_DATE="$(date +"%Y-%m-%dT%H:%M:%SZ")" \
             --build-arg TAG_SUFFIX=latest \
             --file ./Dockerfile .
-            
+            # --build-arg OS=alpine \            
