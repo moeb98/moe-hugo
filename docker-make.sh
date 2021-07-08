@@ -3,7 +3,7 @@ RNAME=mrmoe/moe-hugo
 VER=0.84.4
 BASENAME=alpine:latest
 TAG=git describe --tags `git rev-list --tags --max-count=1`
-
+echo $TAG
 case "$1" in
 	"build")
 		docker buildx build \
