@@ -79,9 +79,8 @@ RUN set -euo pipefail && \
     # clean up some junk
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* && \
     # make super duper sure that everything went OK, exit otherwise
-    hugo env && \
-    go version
-
+    hugo env 
+    
 # add site source as volume
 VOLUME /src
 WORKDIR /src
