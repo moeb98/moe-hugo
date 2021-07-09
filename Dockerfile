@@ -24,8 +24,6 @@ WORKDIR /go/src/github.com/gohugoio/hugo
 
 # gcc/g++ are required to build SASS libraries for extended version
 RUN apk add --update --no-cache \
-      gcc \
-      g++ \
       musl-dev \
       git && \
     go get github.com/magefile/mage
