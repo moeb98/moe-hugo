@@ -60,15 +60,15 @@ COPY --from=build /go/bin/hugo /usr/bin/hugo
 
 # this step is intentionally a bit of a mess to minimize the number of layers in the final image
 RUN set -euo pipefail && \
-    if [ "$(uname -m)" = "x86_64" ]; then \
-      ARCH="amd64"; \
-    elif [ "$(uname -m)" = "aarch64" ]; then \
-      ARCH="arm64"; \
-    elif [ "$(uname -m)" = "armv7l" ]; then \
-      ARCH="armv7"; \
-    else \
-      echo "Unknown build architecture, quitting." && exit 2; \
-    fi && \
+    # if [ "$(uname -m)" = "x86_64" ]; then \
+    #  ARCH="amd64"; \
+    # elif [ "$(uname -m)" = "aarch64" ]; then \
+    #   ARCH="arm64"; \
+    # elif [ "$(uname -m)" = "armv7l" ]; then \
+    #   ARCH="armv7"; \
+    # else \
+    #   echo "Unknown build architecture, quitting." && exit 2; \
+    # fi && \
     # alpine packages
     # ca-certificates are required to fetch outside resources (like Twitter oEmbeds)
     apk add --update --no-cache \
