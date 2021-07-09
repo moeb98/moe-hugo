@@ -74,12 +74,14 @@ RUN set -euo pipefail && \
     apk add --update --no-cache \
       ca-certificates \
       tzdata \
+      go \
       git && \
     update-ca-certificates && \
     # clean up some junk
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* && \
     # make super duper sure that everything went OK, exit otherwise
-    hugo env 
+    hugo env && \
+    go version
     
 # add site source as volume
 VOLUME /src
