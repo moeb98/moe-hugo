@@ -1,35 +1,94 @@
-FROM alpine:latest
+# Hugo version... can be overridden at image build time with --build-arg
+ARG HUGO_VERSION=0.85.0
+# remove/comment the following line completely to compile vanilla Hugo:
+# ARG HUGO_BUILD_TAGS=extended
 
-ARG HUGO_VERSION=0.84.4
-ARG OS=Linux
-ARG ARCH=ARM
-ARG BUILD_DATE
-ARG VCS_REF
+# Hugo >= v0.81.0 requires Go 1.16+ to build
+ARG GO_VERSION=1.16
 
-LABEL maintainer="Mario Eberlein <moeb98@yahoo.de>" \
-    org.label-schema.build-date=${BUILD_DATE} \
-    org.label-schema.name="moe-hugo is multi-arch Hugo" \
-    org.label-schema.description="Hugo multi-arch amd64 and arm32v7 including git" \
-    org.label-schema.url="https://github.com/moeb98/moe-hugo.git" \
-    org.label-schema.vcs-ref=${VCS_REF} \
-    org.lable-schema.vcs-type="Git" \
-    org.label-schema.vcs-url="https://github.com/moeb98/moe-hugo.git" \
-    org.label-schema.vendor="Mario Eberlein" \
-    org.label-schema.version=${HUGO_VERSION} \
-    org.label-schema.schema-version="1.0"
+# ---
 
-ADD https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_${OS}-${ARCH}.tar.gz /tmp
-RUN tar -xf /tmp/hugo_${HUGO_VERSION}_${OS}-${ARCH}.tar.gz -C /tmp \
-    && mkdir -p /usr/local/sbin \
-    && mv /tmp/hugo /usr/local/sbin/hugo \
-    && rm -rf /tmp/hugo_${HUGO_VERSION}_${OS}-${ARCH} \
-    && apk add --no-cache bash git
+FROM golang:${GO_VERSION}-alpine3.13 AS build
 
+# renew global args from above
+# https://docs.docker.com/engine/reference/builder/#scope
+ARG HUGO_VERSION
+# ARG HUGO_BUILD_TAGS
+
+ARG CGO=1
+ENV CGO_ENABLED=${CGO}
+ENV GOOS=linux
+ENV GO111MODULE=on
+
+WORKDIR /go/src/github.com/gohugoio/hugo
+
+# gcc/g++ are required to build SASS libraries for extended version
+RUN apk add --update --no-cache \
+      gcc \
+      g++ \
+      musl-dev \
+      git && \
+    go get github.com/magefile/mage
+
+# clone source:
+RUN git clone \
+      --branch "v${HUGO_VERSION}" \
+      --single-branch \
+      --depth 1 \
+      https://github.com/gohugoio/hugo.git ./
+
+RUN mage -v hugo && mage install
+
+# fix potential stack size problems on Alpine
+# https://github.com/microsoft/vscode-dev-containers/blob/fb63f7e016877e13535d4116b458d8f28012e87f/containers/hugo/.devcontainer/Dockerfile#L19
+RUN go get github.com/yaegashi/muslstack && \
+    muslstack -s 0x800000 /go/bin/hugo
+
+# ---
+
+FROM alpine:3.13
+
+# renew global args from above & pin any dependency versions
+ARG HUGO_VERSION
+
+LABEL version="${HUGO_VERSION}"
+LABEL repository="https://github.com/moeb98/moe-hugo/"
+LABEL homepage="https://github.com/moeb98/moe-hugo/"
+LABEL maintainer="Mario Eberlein<moeb98@yahoo.de>"
+LABEL org.opencontainers.image.source="https://github.com/moeb98/moe-hugo/"
+
+# bring over patched binary from build stage
+COPY --from=build /go/bin/hugo /usr/bin/hugo
+
+# this step is intentionally a bit of a mess to minimize the number of layers in the final image
+RUN set -euo pipefail && \
+    if [ "$(uname -m)" = "x86_64" ]; then \
+      ARCH="amd64"; \
+    elif [ "$(uname -m)" = "aarch64" ]; then \
+      ARCH="arm64"; \
+    elif [ "$(uname -m)" = "armv7l" ]; then \
+      ARCH="armv7"; \
+    else \
+      echo "Unknown build architecture, quitting." && exit 2; \
+    fi && \
+    # alpine packages
+    # ca-certificates are required to fetch outside resources (like Twitter oEmbeds)
+    apk add --update --no-cache \
+      ca-certificates \
+      tzdata \
+      git && \
+    update-ca-certificates && \
+    # clean up some junk
+    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* && \
+    # make super duper sure that everything went OK, exit otherwise
+    hugo env && \
+    go version
+
+# add site source as volume
 VOLUME /src
-VOLUME /output
-
 WORKDIR /src
 
-ENTRYPOINT ["hugo"]
-
+# expose live-refresh server on default port
 EXPOSE 1313
+
+ENTRYPOINT ["hugo"]
