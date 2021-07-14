@@ -66,4 +66,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7
           push: true
-          tags: mrmoe/moe-hugo:latest, ghcr.io/moeb98/moe-hugo:latest
+          tags: mrmoe/moe-hugo:latest, 
+            ghcr.io/moeb98/moe-hugo:latest,
+            mrmoe/moe-hugo:$(git describe --tags `git rev-list --tags --max-count=1`),
+            ghcr.io/moeb98/moe-hugo:$(git describe --tags `git rev-list --tags --max-count=1`)
