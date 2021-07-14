@@ -71,16 +71,17 @@ RUN set -euo pipefail && \
     # alpine packages
     # ca-certificates are required to fetch outside resources (like Twitter oEmbeds)
     apk add --update --no-cache \
-      ca-certificates \
-      tzdata \
-      go \
+    #  ca-certificates \
+    #  tzdata \
+    #  go \
       git && \
-    update-ca-certificates && \
+    # update-ca-certificates && \
     # clean up some junk
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* && \
     # make super duper sure that everything went OK, exit otherwise
-    hugo env && \
-    go version
+    hugo env 
+    # && \
+    # go version
     
 # add site source as volume
 VOLUME /src
