@@ -26,6 +26,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: name/app
+          tags: |
+            type=ref,event=tag
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
