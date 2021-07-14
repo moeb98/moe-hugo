@@ -48,11 +48,14 @@ FROM alpine:3.13
 # renew global args from above & pin any dependency versions
 ARG HUGO_VERSION
 
-LABEL version="${HUGO_VERSION}"
 LABEL repository="https://github.com/moeb98/moe-hugo/"
 LABEL homepage="https://github.com/moeb98/moe-hugo/"
-LABEL maintainer="Mario Eberlein<moeb98@yahoo.de>"
+LABEL org.opencontainers.image.authors="Mario Eberlein<moeb98@yahoo.de>"
+LABEL org.opencontainers.image.title=moe-hugo
 LABEL org.opencontainers.image.source="https://github.com/moeb98/moe-hugo/"
+LABEL org.opencontainers.image.description=multi-arch hugo docker image
+LABEL org.opencontainers.image.version="${HUGO_VERSION}"
+LABEL org.opencontainers.image.licenses=Apache 2.0
 
 # bring over patched binary from build stage
 COPY --from=build /go/bin/hugo /usr/bin/hugo
