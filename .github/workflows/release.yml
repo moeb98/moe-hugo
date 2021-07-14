@@ -7,8 +7,8 @@ on:
 #  schedule:
 #    - cron: "0 10 1 * *" # Update the image every first day of a month at 10am to provide regular updates
   push:
-    branches:
-      - mastaer
+    tags:
+      - '*'
 
 jobs:
   build:
