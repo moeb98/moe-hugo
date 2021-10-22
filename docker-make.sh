@@ -1,6 +1,6 @@
 #!/bin/bash
 REPO=mrmoe/moe-hugo
-VER=0.87.0
+VER=0.88.1
 BASEIMAGE=alpine:latest
 
 case "$1" in
